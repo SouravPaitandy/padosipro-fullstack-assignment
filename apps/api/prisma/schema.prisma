@@ -1,0 +1,125 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── User ────────────────────────────────────────────────────────────────────
+// Email is stored normalized (trimmed + lowercase). passwordHash is never
+// returned from API responses. emailVerifiedAt is null until OTP is consumed.
+
+model User {
+  id              String    @id @default(uuid()) @db.Uuid
+  email           String    @unique
+  passwordHash    String
+  emailVerifiedAt DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  otpChallenges OtpChallenge[]
+  profile       Profile?
+  userTasks     UserTask[]
+
+  @@map("users")
+}
+
+// ─── OtpChallenge ────────────────────────────────────────────────────────────
+// Stores only the HMAC-SHA-256 digest of the 6-digit code. Never a plaintext
+// OTP. consumedAt is set when a correct code is verified or the challenge is
+// superseded. Index on (userId, createdAt) supports fetching the latest
+// eligible challenge efficiently.
+
+model OtpChallenge {
+  id                String    @id @default(uuid()) @db.Uuid
+  userId            String    @db.Uuid
+  codeDigest        String
+  expiresAt         DateTime
+  attempts          Int       @default(0)
+  resendAvailableAt DateTime
+  consumedAt        DateTime?
+  createdAt         DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@map("otp_challenges")
+}
+
+// ─── Profile ─────────────────────────────────────────────────────────────────
+// One profile per user (unique FK). mobile stores the 10-digit national number
+// only (no country code). businessName is nullable per DESIGN.md decision.
+
+model Profile {
+  id           String   @id @default(uuid()) @db.Uuid
+  userId       String   @unique @db.Uuid
+  name         String
+  mobile       String
+  address      String
+  businessName String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("profiles")
+}
+
+// ─── Category ────────────────────────────────────────────────────────────────
+// slug must be unique and stable — seed uses it as the upsert key.
+// Inactive categories are kept for historical task references.
+
+model Category {
+  id        String  @id @default(uuid()) @db.Uuid
+  name      String
+  slug      String  @unique
+  sortOrder Int
+  isActive  Boolean @default(true)
+
+  tasks Task[]
+
+  @@map("categories")
+}
+
+// ─── Task ────────────────────────────────────────────────────────────────────
+// description is nullable per DESIGN.md. slug is unique and stable.
+// Catalog deletion is restricted (RESTRICT) while tasks are selected by users;
+// deactivate instead of deleting.
+
+model Task {
+  id          String  @id @default(uuid()) @db.Uuid
+  categoryId  String  @db.Uuid
+  name        String
+  slug        String  @unique
+  description String?
+  sortOrder   Int
+  isActive    Boolean @default(true)
+
+  category  Category   @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  userTasks UserTask[]
+
+  @@map("tasks")
+}
+
+// ─── UserTask ─────────────────────────────────────────────────────────────────
+// Composite primary key prevents duplicates.
+// UserTask → User  : CASCADE  — deleting a user removes their selections.
+// UserTask → Task  : RESTRICT — deleting a Task row is blocked while selections
+//                               exist; callers must deactivate the task instead.
+
+model UserTask {
+  userId     String   @db.Uuid
+  taskId     String   @db.Uuid
+  selectedAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  task Task @relation(fields: [taskId], references: [id], onDelete: Restrict)
+
+  @@id([userId, taskId])
+  @@map("user_tasks")
+}

@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+
+# Environment files — never commit real secrets
+.env
+apps/api/.env
+apps/mobile/.env
+
+# Expo
+apps/mobile/.expo/
+apps/mobile/dist/
+
+# Build artifacts
+apps/mobile/android/
+apps/mobile/ios/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Other 
+Padosi_pro_compliance_audit

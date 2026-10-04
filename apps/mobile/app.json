@@ -1,0 +1,23 @@
+{
+  "expo": {
+    "name": "PadosiPro",
+    "slug": "padosipro",
+    "version": "1.0.0",
+    "sdkVersion": "57.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "android": {
+      "package": "com.padosipro.app"
+    },
+    "plugins": [
+      "expo-status-bar",
+      "expo-secure-store"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "a27095da-85d2-4be8-9f21-b65601ec76c7"
+      }
+    },
+    "owner": "paitandy_ji"
+  }
+}
