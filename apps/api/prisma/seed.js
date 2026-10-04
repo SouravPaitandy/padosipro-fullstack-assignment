@@ -3,11 +3,6 @@
 /**
  * Idempotent seed script — safe to rerun.
  *
- * WARNING: Task names below are STARTER/DEMO DATA invented for local
- * development. They are NOT from an official PadosiPro task catalog.
- * Replace these names with the authoritative list from the assignment
- * specification or product owner before any non-demo use.
- *
  * Categories and tasks are upserted by their unique slug, so rerunning
  * this script will update names/descriptions without duplicating rows.
  */

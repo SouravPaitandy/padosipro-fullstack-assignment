@@ -10,7 +10,7 @@ import LoginScreen from '../screens/LoginScreen';
 import RegisterScreen from '../screens/RegisterScreen';
 import VerifyOtpScreen from '../screens/VerifyOtpScreen';
 
-// Authenticated Screens (Placeholders for now)
+// Authenticated Screens
 import ProfileScreen from '../screens/ProfileScreen';
 import TaskSelectionScreen from '../screens/TaskSelectionScreen';
 import HomeScreen from '../screens/HomeScreen';

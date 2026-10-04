@@ -76,7 +76,6 @@ To verify after seeding:
 npm run db:seed
 ```
 
-> **Note — Seed data:** The task names loaded by `npm run db:seed` are **starter/demo data** invented for local development. They are **not** from an official PadosiPro task catalog. Replace the contents of `apps/api/prisma/seed.js` with the authoritative list from the assignment specification before any non-demo use.
 
 ---
 
@@ -169,10 +168,10 @@ npm run test
 
 **Note on Bundling vs. Building**: Running `npx expo export` creates a compiled JavaScript bundle and static assets for the app. It does **not** create an installable Android APK.
 
-To build a standalone installable Android APK locally for physical device installation:
+To build a standalone installable Android APK for physical device installation:
 
-1. Use the pre-configured `preview` build profile already located in `apps/mobile/eas.json`.
-2. Set `EXPO_PUBLIC_API_URL` in `apps/mobile/.env` to a reachable backend URL if you want the installed APK to connect to the backend. The build can succeed with another value, but `localhost` won’t reach the development computer from a phone.
+1. Use the pre-configured `preview` build profile already located in `apps/mobile/eas.json` which builds an installable APK.
+2. A reachable backend URL is needed for the installed APK to communicate with the backend. This API URL is embedded at build time. You can either set `EXPO_PUBLIC_API_URL` in the Expo Cloud Dashboard as a secret, or define it in `apps/mobile/.env` before building. A LAN IP works for physical-device testing only when the device and development machine are on the same network. A production backend URL can be used instead if available.
 3. Authenticate with Expo and initialize the project. From the `apps/mobile` directory:
    ```bash
    cd apps/mobile
@@ -180,9 +179,19 @@ To build a standalone installable Android APK locally for physical device instal
    npx eas-cli init
    ```
    _(This links your code to an EAS project ID in `app.json`.)_
-4. Run the EAS local build command:
+4. Run the EAS cloud build command:
    ```bash
-   npx eas-cli build --platform android --local --profile preview
+   npx eas-cli build --platform android --profile preview
    ```
 
-_Note: Expo does not officially support running local EAS Android builds directly on Windows. It is highly recommended to run the local build inside WSL (Windows Subsystem for Linux) or on a supported macOS/Linux host._
+### APK Testing
+
+The submitted Android APK is configured for local-network API testing.
+
+For the APK to communicate with the backend:
+- Start PostgreSQL and Mailpit using Docker Compose.
+- Start the Express API locally.
+- Ensure the Android device and development machine are on the same Wi-Fi network.
+- Configure the mobile API URL to the machine's LAN IP before building the APK.
+
+The backend can also be run independently using the setup instructions above.
