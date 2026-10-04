@@ -7,7 +7,8 @@
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "android": {
-      "package": "com.padosipro.app"
+      "package": "com.padosipro.app",
+      "usesCleartextTraffic": true
     },
     "plugins": [
       "expo-status-bar",
